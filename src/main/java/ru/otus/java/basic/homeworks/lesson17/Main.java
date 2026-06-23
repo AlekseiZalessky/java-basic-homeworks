@@ -14,9 +14,10 @@ public class Main {
         phoneBook.add("+375295478541", abonent3);
         phoneBook.add("+375333335552", abonent4);
         phoneBook.add("+375254545655", abonent1);
+        phoneBook.add("+375254545655", abonent1);
 
-        System.out.println(phoneBook.getPhoneNumbers("Иван", "Иванов"));
+        System.out.println(phoneBook.find("Иван", "Иванов"));
 
-        System.out.println(phoneBook.getPhoneNumbers(abonent1));
+        System.out.println(phoneBook.find(abonent1));
     }
 }
