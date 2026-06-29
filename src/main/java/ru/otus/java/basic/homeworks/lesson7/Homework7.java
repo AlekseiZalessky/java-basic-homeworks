@@ -30,7 +30,7 @@ public class Homework7 {
     public static void zeroDiagonal(int[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
-                if (i == j || j == array[j].length - i - 1) {
+                if (i == j || j == array[i].length - i - 1) {
                     array[i][j] = 0;
                 }
             }
@@ -57,16 +57,22 @@ public class Homework7 {
     }
 
     public static int sumSecondColumn(int[][] array) {
+
+        if (array == null || array.length == 0) {
+            return -1;
+        }
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null || array[i].length < 2) {
+                return -1;
+            }
+        }
+
         int sum = 0;
         for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                if (array[i].length < 3) {
-                    return -1;
-                }
-                if (j == 2) {
-                    sum += array[i][j];
-                }
-            }
+
+            sum += array[i][1];
+
         }
         return sum;
     }
