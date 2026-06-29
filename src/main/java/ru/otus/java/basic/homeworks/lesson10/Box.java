@@ -9,11 +9,16 @@ public class Box {
     private String item;
 
     public Box(int length, int width, int height, String color) {
+        if (length <= 0 || width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Некорректные размеры");
+        }
+        if (color == null || color.isBlank()) {
+            throw new IllegalArgumentException("Некорректный цвет");
+        }
         this.length = length;
         this.width = width;
         this.height = height;
         this.color = color;
-        this.item = "";
     }
 
     public void open() {
@@ -35,6 +40,9 @@ public class Box {
     }
 
     public void reColor(String color) {
+        if (color == null || color.isBlank()) {
+            throw new IllegalArgumentException("Цвет не может быть пустым");
+        }
         if (!this.color.equals(color)) {
             this.color = color;
             System.out.println("Коробка перекрашена в " + color + " цвет");
@@ -56,12 +64,15 @@ public class Box {
     }
 
     public void addItem(String item) {
+        if (item == null || item.isBlank()) {
+            throw new IllegalArgumentException("Некорректный предмет");
+        }
         if (!open) {
             System.out.println("Коробка закрыта. Чтобы положить предмет - сначала ее откройте");
             return;
         }
 
-        if ("".equals(this.item)) {
+        if (this.item == null) {
             this.item = item;
             System.out.println("В коробку положили " + item);
         } else {
@@ -75,9 +86,9 @@ public class Box {
             return;
         }
 
-        if (!"".equals(item)) {
+        if (this.item != null) {
             System.out.println("Коробка освобождена");
-            this.item = "";
+            this.item = null;
         } else {
             System.out.println("Коробка уже пуста");
         }
