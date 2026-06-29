@@ -6,10 +6,11 @@ import ru.otus.java.basic.homeworks.lesson11.animals.Horse;
 
 public class Main {
     public static void main(String[] args) {
-        Cat cat = new Cat("Пушок", -2);
-        Dog dog = new Dog("Бобик", -4, 2);
+        Cat cat = new Cat("Пушок", 2);
+        Dog dog = new Dog("Бобик", 4, 2);
         Horse horse = new Horse("Зорька", 6, 1);
 
         dog.swim(10);
+        cat.swim(10);
     }
 }

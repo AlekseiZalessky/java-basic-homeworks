@@ -9,6 +9,15 @@ public abstract class Animal {
     int runStaminaCost;
 
     public Animal(String name, int runSpeed, int swimSpeed) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Некорректное имя");
+        }
+        if(runSpeed < 0) {
+            throw new IllegalArgumentException("Некорректная скорость бега");
+        }
+        if(swimSpeed < 0) {
+            throw new IllegalArgumentException("Некорректная скорость плавания");
+        }
         this.name = name;
         this.runSpeed = runSpeed;
         this.swimSpeed = swimSpeed;
@@ -16,17 +25,17 @@ public abstract class Animal {
         this.runStaminaCost = 1;
     }
 
-    public int run(int distance) {
+    public float run(int distance) {
         if (!isValidDistanceAndSpeed(distance, runSpeed)) {
             return -1;
         }
 
-        int newStamina = stamina - distance;
+        int newStamina = stamina - distance * runStaminaCost;
         if (isNegativeStamina(newStamina)) {
             return -1;
         }
 
-        int time = distance / runSpeed;
+        float time = (float) distance / runSpeed;
         stamina = newStamina;
 
         System.out.println("Животному по кличке " + name + " понадобилось " + time + " секунд, чтобы пробежать " + distance + " метров.");
@@ -40,7 +49,7 @@ public abstract class Animal {
         return time;
     }
 
-    public int swim(int distance) {
+    public float swim(int distance) {
         if (!isValidDistanceAndSpeed(distance, swimSpeed)) {
             return -1;
         }
@@ -50,7 +59,7 @@ public abstract class Animal {
             return -1;
         }
 
-        int time = distance / swimSpeed;
+        float time = (float) distance / swimSpeed;
         stamina = newStamina;
 
         System.out.println("Животному по кличке " + name + " понадобилось " + time + " секунд, чтобы проплыть " + distance + " метров.");
