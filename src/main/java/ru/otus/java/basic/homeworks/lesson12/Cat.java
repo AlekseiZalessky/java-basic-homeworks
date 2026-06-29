@@ -6,6 +6,12 @@ public class Cat {
     private boolean full;
 
     public Cat(String name, int appetite) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Некорректное имя");
+        }
+        if (appetite <= 0 ) {
+            throw new IllegalArgumentException("Некорректное значение аппетита");
+        }
         this.name = name;
         this.appetite = appetite;
     }
@@ -15,10 +21,7 @@ public class Cat {
             System.out.println(name + " не голоден");
             return;
         }
-        if (plate.getCurrentFood() < appetite) {
-            System.out.println("В терелке недостаточно еды, " + name + " остался голодным");
-            return;
-        }
+
         if (plate.removeFood(appetite)) {
             full = true;
             System.out.println(name + " покушал");

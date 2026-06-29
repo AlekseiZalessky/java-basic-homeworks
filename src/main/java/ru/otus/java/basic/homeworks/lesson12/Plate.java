@@ -5,6 +5,9 @@ public class Plate {
     private int currentFood;
 
     public Plate(int maxFood) {
+        if (maxFood <= 0) {
+            throw new IllegalArgumentException("Максимальное количество должно быть больше нуля");
+        }
         this.maxFood = maxFood;
         this.currentFood = maxFood;
     }
@@ -12,7 +15,7 @@ public class Plate {
     public void addFood(int amount) {
         if (currentFood < maxFood) {
             if (currentFood + amount > maxFood) {
-                System.out.println("В тарелку смогли добавить " + (maxFood - currentFood) + " еды");
+                System.out.println("Тарелка заполнена до максимума, излишек " + (amount + currentFood - maxFood));
                 currentFood = maxFood;
             } else {
                 currentFood += amount;
