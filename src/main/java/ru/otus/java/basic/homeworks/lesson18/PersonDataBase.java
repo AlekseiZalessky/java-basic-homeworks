@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public class PersonDataBase {
-    private List<Person> people;
     private Map<Long, Person> persons;
 
     public PersonDataBase() {
-        this.people = new ArrayList<>();
         this.persons = new HashMap<>();
     }
 
@@ -25,7 +23,6 @@ public class PersonDataBase {
         if (person == null) {
             throw new IllegalArgumentException("Invalid person!");
         }
-        people.add(person);
         persons.put(person.getId(), person);
     }
 
