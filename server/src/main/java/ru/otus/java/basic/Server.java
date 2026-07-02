@@ -1,17 +1,24 @@
 package ru.otus.java.basic;
 
+import ru.otus.java.basic.auth.AuthenticatedProvider;
+import ru.otus.java.basic.auth.InMemoryAuthenticatedProvider;
+
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    private int port;
-    private List<ClientHandler> clients;
+    private final int port;
+    private final Map<String, ClientHandler> clients;
+    private final AuthenticatedProvider authenticatedProvider;
+    private static final String SYSTEM = "system";
 
     public Server(int port) {
         this.port = port;
-        this.clients = new CopyOnWriteArrayList<ClientHandler>();
+        this.clients = new ConcurrentHashMap<>();
+        this.authenticatedProvider = new InMemoryAuthenticatedProvider(this);
+        authenticatedProvider.init();
     }
 
     public void start() {
@@ -21,22 +28,33 @@ public class Server {
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                subscribe(new ClientHandler(socket, this));
+                new ClientHandler(socket, this);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void subscribe(ClientHandler client) {
-        clients.add(client);
+    public void subscribe(ClientHandler client, String login) {
+        clients.put(login, client);
     }
 
     public void unsubscribe(ClientHandler client) {
+        clients.remove(client.getLogin());
+
         if (client.getUsername() != null) {
-            broadcastMessage("server", String.format("Пользователь %s отключился", client.getUsername()));
-            clients.remove(client);
+            broadcastMessage(SYSTEM, String.format("Пользователь %s отключился", client.getUsername()));
         }
+
+        client.setAuthenticated(false);
+    }
+
+    public void kick(ClientHandler client) {
+        clients.remove(client.getLogin());
+        if (client.getUsername() != null) {
+            broadcastMessage(SYSTEM, String.format("Пользователь %s был отключен администратором", client.getUsername()));
+        }
+        client.setAuthenticated(false);
     }
 
     public void broadcastMessage(String username, String message) {
@@ -44,64 +62,59 @@ public class Server {
             throw new IllegalArgumentException("Некорректные входные данные");
         }
 
-        for (ClientHandler client : clients) {
-            if ("server".equals(username)) {
-                client.sendMessage("", message);
-            } else {
-                client.sendMessage(username + " -> всем: ", message);
-            }
+        if (SYSTEM.equals(username)) {
+            username = "";
+        } else {
+            username += " -> всем: ";
+        }
+
+        for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
+            entry.getValue().sendMessage(username, message);
         }
     }
 
-    public void privateMessage(String sender, String receiver, String message) {
-        if (sender == null || receiver == null || message == null) {
+    public ClientHandler getClientByUsername(String username) {
+        for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
+            if(entry.getValue().getUsername().equals(username)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public void privateMessage(String senderLogin, String receiverUsername, String message) {
+        if (senderLogin == null || receiverUsername == null || message == null) {
             throw new IllegalArgumentException("Некорректные входные данные");
         }
 
-        if (sender.equals(receiver)) {
-            for (ClientHandler client : clients) {
-                if (sender.equals(client.getUsername())) {
-                    client.sendMessage("server", "Вы не можете отправлять сообщение самому себе");
-                }
-            }
-        } else {
-            boolean isReceiver = false;
+        ClientHandler sender = clients.get(senderLogin);
+        ClientHandler receiver = getClientByUsername(receiverUsername);
 
-            for (ClientHandler client : clients) {
-                if (receiver.equals(client.getUsername())) {
-                    isReceiver = true;
-                }
-            }
-
-            if (isReceiver) {
-                for (ClientHandler client : clients) {
-                    if (client.getUsername().equals(receiver)) {
-                        client.sendMessage(sender + " -> вам: ", message);
-                    }
-                    if (client.getUsername().equals(sender)) {
-                        client.sendMessage("Вы -> " + receiver + ": ", message);
-                    }
-                }
-            } else {
-                for (ClientHandler client : clients) {
-                    if (sender.equals(client.getUsername())) {
-                        client.sendMessage("server", String.format("Пользователь %s не найден", receiver));
-                    }
-                }
-            }
+        if (receiver == null) {
+            sender.sendMessage(SYSTEM, String.format("Пользователь %s не найден", receiverUsername));
+            return;
         }
+
+        if (senderLogin.equals(receiver.getLogin())) {
+            sender.sendMessage(SYSTEM, "Вы не можете отправлять сообщение самому себе");
+            return;
+        }
+
+        receiver.sendMessage(sender.getUsername() + " -> вам: ", message);
+        sender.sendMessage("Вы -> " + receiverUsername + ": ", message);
+
     }
 
-    public boolean validateUsername(String username) {
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Имя не может быть пустым");
+    public boolean isLoginBusy(String login) {
+        if (login == null || login.isBlank()) {
+            throw new IllegalArgumentException("Логин не может быть пустымм");
         }
 
-        for (ClientHandler client : clients) {
-            if (client.getUsername() != null && client.getUsername().equals(username)) {
-                return false;
-            }
-        }
-        return true;
+        return clients.containsKey(login);
+    }
+
+
+    public AuthenticatedProvider getAuthenticatedProvider() {
+        return authenticatedProvider;
     }
 }

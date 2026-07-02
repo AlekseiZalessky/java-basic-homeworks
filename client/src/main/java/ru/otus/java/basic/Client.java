@@ -6,10 +6,11 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    private Socket socket;
-    private Scanner scanner;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private final Socket socket;
+    private final Scanner scanner;
+    private final DataInputStream in;
+    private final DataOutputStream out;
+    private boolean isKicked;
 
     public Client(String host, int port) throws Exception {
         this.scanner = new Scanner(System.in);
@@ -17,33 +18,31 @@ public class Client {
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
 
-        while (true) {
-            System.out.print("Введите имя пользователя: ");
-            String username = scanner.nextLine();
-
-            if (username.isBlank()) {
-                System.out.println("Имя не может быть пустым");
-                continue;
-            }
-            out.writeUTF(username);
-
-            String response = in.readUTF();
-            if (response.equals("/registerOk")) {
-                break;
-            } else {
-                System.out.println("Такое имя занято другим пользователем");
-            }
-        }
-
         new Thread(() -> {
             try {
                 while (true) {
                     String message = in.readUTF();
 
                     if (message.startsWith("/")) {
-                        if(message.equals("/exitok")){
+
+                        if (message.equals("/exitok")) {
                             break;
                         }
+                        if (message.startsWith("/authok")) {
+                            String login = message.split(" ")[1];
+                            System.out.println("Вы успешно аутентифицировались под логином: " + login);
+                        }
+                        if(message.startsWith("/regok")) {
+                            String login = message.split(" ")[1];
+                            System.out.println("Вы успешно зарегистрировались и вошли под логином: " + login);
+                        }
+
+                        if(message.equals("/kickok")) {
+                            System.out.println("Вы отключены администратором");
+                            isKicked = true;
+                            return;
+                        }
+
                     } else {
                         System.out.println(message);
                     }
@@ -55,9 +54,20 @@ public class Client {
             }
         }).start();
 
+
         try {
             while (true) {
+
+                if(isKicked) {
+                    break;
+                }
+
                 String message = scanner.nextLine();
+                if (message.isBlank()) {
+                    System.out.println("Соббщение не может быть пустым");
+                    continue;
+                }
+
                 out.writeUTF(message);
                 if (message.equals("/exit")) {
                     break;
