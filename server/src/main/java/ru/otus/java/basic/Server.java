@@ -1,10 +1,11 @@
 package ru.otus.java.basic;
 
 import ru.otus.java.basic.auth.AuthenticatedProvider;
-import ru.otus.java.basic.auth.InMemoryAuthenticatedProvider;
+import ru.otus.java.basic.auth.InDatabaseAuthenticatedProvider;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,10 +17,10 @@ public class Server {
     private final AuthenticatedProvider authenticatedProvider;
 
 
-    public Server(int port) {
+    public Server(int port) throws SQLException {
         this.port = port;
         this.clients = new ConcurrentHashMap<>();
-        this.authenticatedProvider = new InMemoryAuthenticatedProvider(this);
+        this.authenticatedProvider = new InDatabaseAuthenticatedProvider(this);
         authenticatedProvider.init();
     }
 
