@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  otus-db:
+    image: postgres
+    container_name: otus-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=otus-db
