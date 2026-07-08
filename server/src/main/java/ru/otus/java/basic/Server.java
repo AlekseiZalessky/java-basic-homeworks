@@ -8,11 +8,13 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static ru.otus.java.basic.Commands.*;
+
 public class Server {
     private final int port;
     private final Map<String, ClientHandler> clients;
     private final AuthenticatedProvider authenticatedProvider;
-    private static final String SYSTEM = "system";
+
 
     public Server(int port) {
         this.port = port;

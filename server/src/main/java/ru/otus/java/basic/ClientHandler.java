@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
+import static ru.otus.java.basic.Commands.*;
+
 public class ClientHandler {
     private final Socket socket;
     private final Server server;
@@ -13,7 +15,6 @@ public class ClientHandler {
     private String login;
     private boolean authenticated;
     private Role role;
-    private static final String SYSTEM = "system";
 
 
     public ClientHandler(Socket socket, Server server) throws Exception {
@@ -32,12 +33,12 @@ public class ClientHandler {
 
                     String message = in.readUTF();
                     if (message.startsWith("/")) {
-                        if (message.equals("/exit")) {
-                            sendMessage(SYSTEM, "/exitok");
+                        if (message.equals(EXIT)) {
+                            sendMessage(SYSTEM, EXIT_OK);
                             server.broadcastMessage(SYSTEM, String.format("Пользователь %s отключился", getUsername()));
                             break;
                         }
-                        if (message.startsWith("/auth ")) {
+                        if (message.startsWith(AUTH)) {
                             String[] token = message.split(" ");
                             if (token.length != 3) {
                                 sendMessage(SYSTEM, "Неверный формат команды /auth");
@@ -53,7 +54,7 @@ public class ClientHandler {
                                 break;
                             }
                         }
-                        if (message.startsWith("/reg ")) {
+                        if (message.startsWith(REG)) {
                             String[] token = message.split(" ");
                             if (token.length != 4) {
                                 sendMessage(SYSTEM, "Неверный формат команды /reg");
@@ -77,13 +78,13 @@ public class ClientHandler {
                 while (authenticated) {
                     String message = in.readUTF();
                     if (message.startsWith("/")) {
-                        if (message.equals("/exit")) {
-                            sendMessage(SYSTEM, "/exitok");
+                        if (message.equals(EXIT)) {
+                            sendMessage(SYSTEM, EXIT_OK);
                             server.broadcastMessage(SYSTEM, String.format("Пользователь %s отключился", getUsername()));
                             break;
                         }
 
-                        if (message.startsWith("/w")) {
+                        if (message.startsWith(PRIVATE)) {
                             String[] token = message.split(" ", 3);
                             String senderLogin = getLogin();
                             if (token.length != 3) {
@@ -96,7 +97,7 @@ public class ClientHandler {
 
                         }
 
-                        if (message.startsWith("/kick ")) {
+                        if (message.startsWith(KICK)) {
                             if (getRole() != null && !getRole().equals(Role.ADMIN)) {
                                 sendMessage(SYSTEM, "У вас нет прав для отклчения пользователей");
                                 continue;
@@ -115,7 +116,7 @@ public class ClientHandler {
                                 sendMessage(SYSTEM, String.format("Пользователь %s не найден", usernameToKick));
 
                             } else {
-                                clientHandler.sendMessage(SYSTEM, "/kickok");
+                                clientHandler.sendMessage(SYSTEM, KICK_OK);
                                 server.kick(clientHandler);
                             }
 

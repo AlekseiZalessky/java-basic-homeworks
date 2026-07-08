@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import static ru.otus.java.basic.Commands.*;
+
 public class Client {
     private final Socket socket;
     private final Scanner scanner;
@@ -25,19 +27,19 @@ public class Client {
 
                     if (message.startsWith("/")) {
 
-                        if (message.equals("/exitok")) {
+                        if (message.equals(EXIT_OK)) {
                             break;
                         }
-                        if (message.startsWith("/authok")) {
+                        if (message.startsWith(AUTH_OK)) {
                             String login = message.split(" ")[1];
                             System.out.println("Вы успешно аутентифицировались под логином: " + login);
                         }
-                        if(message.startsWith("/regok")) {
+                        if(message.startsWith(REG_OK)) {
                             String login = message.split(" ")[1];
                             System.out.println("Вы успешно зарегистрировались и вошли под логином: " + login);
                         }
 
-                        if(message.equals("/kickok")) {
+                        if(message.equals(KICK_OK)) {
                             System.out.println("Вы отключены администратором");
                             isKicked = true;
                             return;
@@ -64,12 +66,12 @@ public class Client {
 
                 String message = scanner.nextLine();
                 if (message.isBlank()) {
-                    System.out.println("Соббщение не может быть пустым");
+                    System.out.println("Сообщение не может быть пустым");
                     continue;
                 }
 
                 out.writeUTF(message);
-                if (message.equals("/exit")) {
+                if (message.equals(EXIT)) {
                     break;
                 }
             }

@@ -4,8 +4,11 @@ import ru.otus.java.basic.ClientHandler;
 import ru.otus.java.basic.Role;
 import ru.otus.java.basic.Server;
 
+import java.sql.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static ru.otus.java.basic.Commands.*;
 
 public class InMemoryAuthenticatedProvider implements AuthenticatedProvider {
 
