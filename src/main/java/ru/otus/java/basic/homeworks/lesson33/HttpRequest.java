@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.logging.log4j.Logger;
 
 public class HttpRequest {
@@ -39,7 +40,9 @@ public class HttpRequest {
         return params.containsKey(key);
     }
 
-    public boolean containsHeader(String key) { return headers.containsKey(key); }
+    public boolean containsHeader(String key) {
+        return headers.containsKey(key);
+    }
 
     public Map<String, String> getHeaders() {
         return headers;
@@ -54,16 +57,16 @@ public class HttpRequest {
 
     public void info(boolean showRawRequest) {
         if (showRawRequest) {
-            System.out.println(rawRequest);
+            logger.info(rawRequest);
         }
-        System.out.println("HTTP METHOD: " + httpMethod);
-        System.out.println("URI: " + uri);
-        System.out.println("PARAMS: " + params);
-        System.out.println("HEADERS: " + headers);
+        logger.info("HTTP METHOD: {}", httpMethod);
+        logger.info("URI: {}", uri);
+        logger.info("PARAMS: {}", params);
+        logger.info("HEADERS: {}", headers);
     }
 
     private void parse() {
-        logger.debug("Парсинг rawRequest: {}", rawRequest );
+        logger.debug("Парсинг rawRequest: {}", rawRequest);
         int start = rawRequest.indexOf(' ');
         int end = rawRequest.indexOf(' ', start + 1);
         httpMethod = HttpMethod.valueOf(rawRequest.substring(0, start));
@@ -87,8 +90,8 @@ public class HttpRequest {
         String[] requestHeaders = rawRequest.substring(rawRequest.indexOf("\r\n"), rawRequest.indexOf("\r\n\r\n")).split("\r\n");
 
         for (String h : requestHeaders) {
-            if(h.isEmpty()) continue;
-            String[] keyValue = h.split(": ");
+            if (h.isEmpty()) continue;
+            String[] keyValue = h.split(": ", 2);
             if (keyValue.length == 2) {
                 headers.put(keyValue[0], keyValue[1]);
             }
